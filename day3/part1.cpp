@@ -6,62 +6,105 @@
 #include <map>
 
 using namespace std;
-vector<string> parseInput(const string some_str) {
 
-    const string delimiter= ",";
-    size_t start= 0;
-    size_t end= some_str.find(delimiter);
-    vector<string> string_vector;
-
-    while (end != string::npos) {
-
-        string_vector.emplace_back(some_str.substr(start, end - start ));
-        start= end + delimiter.size();
-        end= some_str.find(delimiter, start);
-
-    }
-    string_vector.emplace_back(some_str.substr(start, end - start));
-
-    return string_vector;
-
-}
-pair<string, string> readInput(){
+pair<vector<pair<char, int>>, vector<pair<char, int>>> readInput(){
 
         ifstream file("input.txt");
 
         if (!file.is_open())
-            {  return make_pair("", "");   }
+            { cout << "FAILED TO READ FILE..."; }
+
+
+        string testOne, testTwo;
+
+        getline(file, testOne);
+        getline(file,testTwo);
 
         string input;
-        string wireOne;
-        string wireTwo;
+        string s;
+        vector<pair<char, int>> wireOne;
+        vector<pair<char, int>> wireTwo;
 
-        getline(file, wireOne);
-        getline(file, wireTwo);
+        istringstream iss(testOne);
+
+        while (getline(iss, s, ',')) {
+            wireOne.push_back({s.at(0), stoi(s.substr(1, s.length()-1))});
+        }
+
+        istringstream iss2(testTwo);
+
+        while (getline(iss2, s, ',')) {
+            wireTwo.push_back({s.at(0), stoi(s.substr(1, s.length()-1))});
+        }
 
         return make_pair(wireOne, wireTwo);
+
+
+
+
+
+
 }
 
 int main ()
 {
-
-    pair<string, string> input= readInput();
-    vector<string> wireOne= parseInput(input.first);
-    vector<string> wireTwo= parseInput(input.second);
-
-    for (size_t i; i < wireOne.size(); i++){
+    pair<vector<pair<char, int>>, vector<pair<char, int>>> input= readInput();
 
     // need to generate the points into a set and then take the intersection of the two sets
     // then calculate Manhattan Distance abs(X1- X2) + (abs(Y1- Y2) for each and return the smallest
 
+    const vector<pair<char, int>> wireOne= input.first;
+    const vector<pair<char, int>> wireTwo= input.second;
+
+    map<char, pair<int, int>> directions=
+    {{'R', {1,0}}, {'L', {-1, 0}}, {'U', {0, 1}}, {'D', {0, -1}}};
+
+    int x= 0, y= 0;
+
+    set<pair<int, int>> visited;
+
+    for (pair<char, int> command: wireOne) {
+
+        pair<int, int> d= directions[command.first];
+
+        for (int i = command.second; i > 0; i--) {
+
+            x+= d.first;
+            y+= d.second;
+
+            visited.insert({x, y});
+
+        }
+
     }
 
+    int answer= INT_MAX;
+
+    x= 0, y= 0;
+
+    for (pair<char, int> command: wireTwo) {
+
+        pair<int, int> d= directions[command.first];
+
+        for (int i = command.second; i > 0; i--) {
+
+            x+= d.first;
+            y+= d.second;
+
+            pair<int, int> p= {x, y};
+
+            if (visited.find(p) != visited.end()) {
+
+                answer= min(answer, abs(x)+ abs(y));
+
+            }
+
+        }
 
 
+    }
 
+    cout << answer << "\n";
 
     return 0;
-
-
-
 }

@@ -7,10 +7,13 @@ using namespace std;
 
 vector<int> readData() {
 
+    //init string vector
     vector<string> data;
+    // creating the file stream using input.txt in current dir
     ifstream file("input.txt");
     string input_str;
 
+    //defining parsing rules (splitting at the "," and casting as integer
     const string delimiter= ",";
     getline(file, input_str);
     size_t start= 0;
@@ -34,28 +37,50 @@ vector<int> readData() {
 
 int main() {
 
+    //reading in the op commands as a int vector
     vector<int> program= readData();
 
-    program[1]= 12;
-    program[2]= 2;
+    // init VALUE as immutable int representing the desired value
+    const int VALUE= 19690720;
+    int answser;
 
-    size_t index= 0;
+    // loop for brute forcing noun values
+    for (int noun= 0; noun < 100; noun++) {
 
-    while (program[index] != 99) {
+        // loop for brute forcing verb values
+        for (int verb= 0; verb < 100; verb++) {
 
-        if (program[index] == 1) {
-            program[program[index + 3]]= program[program[index + 2]] + program[program[index + 1]];
+            vector<int> mem(program);
+            mem[1]= noun;
+            mem[2]= verb;
 
-    }   else if (program[index] == 2) {
+            // running the op commands
+            size_t index= 0;
+            while (mem[index] != 99) {
 
-        program[program[index + 3]]= program[program[index + 2]] * program[program[index + 1]];
+                if (mem[index] == 1) {
+
+                    mem[mem[index+3]]= mem[mem[index+1]] + mem[mem[index+2]];
+
+                } else if (mem[index] == 2) {
+
+                    mem[mem[index+3]]= mem[mem[index+1]] * mem[mem[index+2]];
+
+                }
+
+                index+= 4;
+            }
+            // Conditional to check is desired value has been found
+            if (mem[0] == VALUE) {
+
+                int answer= 100*noun+verb;
+                cout << answer << "  <-- ANSWER";
+            }
+
+        }
 
     }
 
-    index+= 4;
-
-    }
-
-    return program[0];
+    return 0;
 
 }
